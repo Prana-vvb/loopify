@@ -1,31 +1,69 @@
 import os
-import spotipy
+import sys
 import time
-from spotipy.oauth2 import SpotifyOAuth
+import spotipy
+import argparse
 from dotenv import load_dotenv
+from spotipy.oauth2 import SpotifyOAuth
 
-load_dotenv()
 
-id = os.getenv('SPOTIFY_CLIENT_ID')
-secret = os.getenv('SPOTIFY_CLIENT_SECRET')
-url = 'http://localhost:3000/callback',
-scope = 'user-modify-playback-state user-read-playback-state'
+def getArgs():
+    parser = argparse.ArgumentParser()
 
-sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=id,
-                                               client_secret=secret,
-                                               redirect_uri=url,
-                                               scope=scope))
+    parser.add_argument('-s', '--start',
+                        help='''Specify song start time in seconds (Default=0).
+                        Syntax: [--start <time>], [-s <time>]''',
+                        default=0)
+    parser.add_argument('-e', '--end',
+                        help='''Specify song end time in seconds.
+                        Syntax: [--end <time>], [-e <time>]''',
+                        default=None)
 
-playback = sp.current_playback()
-print(playback)
+    return parser.parse_args()
 
-loop_start = 98  # Enter start time in seconds
-loop_end = 126  # Enter end time in seconds
 
-while True:
+def getClient():
+    load_dotenv()
+
+    id = os.getenv('SPOTIFY_CLIENT_ID')
+    secret = os.getenv('SPOTIFY_CLIENT_SECRET')
+    url = 'http://localhost:3000/callback'
+    scope = 'user-modify-playback-state user-read-playback-state'
+
+    auth = SpotifyOAuth(client_id=id,
+                        client_secret=secret,
+                        redirect_uri=url,
+                        scope=scope)
+
+    return spotipy.Spotify(auth_manager=auth)
+
+
+def main():
+    args = getArgs()
+    sp = getClient()
+
     playback = sp.current_playback()
-    if playback:
-        current_position = playback['progress_ms'] / 1000
-        if current_position >= loop_end:
-            sp.seek_track(loop_start * 1000)
-    time.sleep(1)
+    print(playback)
+
+    if len(sys.argv) > 1:
+        loop_start = args.start
+        if args.end:
+            loop_end = args.end
+        else:
+            print("Please specify end time")
+            exit(0)
+
+        while True:
+            playback = sp.current_playback()
+
+            if playback:
+                current_position = playback['progress_ms']/1000
+                if current_position >= loop_end:
+                    sp.seek_track(loop_start*1000)
+            time.sleep(1)
+    else:
+        print("Run 'python3 main.py -h' for help")
+
+
+if __name__ == '__main__':
+    main()
