@@ -23,7 +23,7 @@ Loopify is a simple Python script that allows you to loop a specific portion of 
 
 3. **Install dependencies:**
    ```sh
-   pip install spotipy
+   pip install -r requirements.txt
    ```
 
 4. **Set up Spotify API credentials:**
@@ -40,22 +40,12 @@ Loopify is a simple Python script that allows you to loop a specific portion of 
    SPOTIFY_CLIENT_ID="your_client_id_here"
    SPOTIFY_CLIENT_SECRET="your_client_secret_here"
    ```
-   Then, run:
-   ```sh
-   source ~/.zshrc
-   ```
-   **Windows:**
-   ```sh
-   setx SPOTIFY_CLIENT_ID "your_client_id"
-   setx SPOTIFY_CLIENT_SECRET "your_client_secret"
-
-   ```
 
 ## Usage
 
 1. **Run the script:**
    ```sh
-   python main.py
+   python3 main.py
    ```
 
 2. **Modify the loop range:**
